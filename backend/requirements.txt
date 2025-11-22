@@ -1,0 +1,6 @@
+azure-ai-search
+azure-identity
+openai
+requests
+fastapi
+uvicorn

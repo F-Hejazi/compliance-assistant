@@ -1,1 +1,4 @@
-# compliance-assistant
+# Azure Compliance Assistant
+
+This system is a lightweight compliance automation assistant that reads a small set of synthetic policies, rules, and checklists, then uses agents to validate documents, check if a vendor or request meets compliance requirements, identify missing information, and decide when something should be escalated. 
+The agents work together to classify the request, retrieve relevant rules, perform validation steps, explain the actions taken, and apply safety checks. Azure AI Search hosts the synthetic compliance materials, Azure OpenAI handles reasoning, and Logic Apps can simulate simple approval actions.
