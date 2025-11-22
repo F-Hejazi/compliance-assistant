@@ -1,4 +1,4 @@
-azure-ai-search
+azure-search-documents
 azure-identity
 openai
 requests
