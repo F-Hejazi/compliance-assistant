@@ -1,0 +1,3 @@
+{"id": "rule1", "rule": "ApprovalRule", "condition": "intent == DocumentValidation && confidence >= 0.8 && checklist_pass == true", "action": "auto_approve"}
+{"id": "rule2", "rule": "EscalationRule", "condition": "intent == VendorCheck && (confidence < 0.7 || missing_certification == true)", "action": "escalate_to_compliance_officer"}
+{"id": "rule3", "rule": "RejectionRule", "condition": "intent == DocumentValidation && confidence >= 0.8 && checklist_pass == false", "action": "auto_reject_with_explanation"}

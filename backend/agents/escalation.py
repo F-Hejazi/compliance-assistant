@@ -1,2 +1,3 @@
-def check_escalation(context: dict):
-    return {"escalate": False}
+def check_escalation(intent: str, docs: list[dict]) -> bool:
+    # Example: escalate if no documents found
+    return not bool(docs)

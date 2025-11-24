@@ -1,6 +1,8 @@
+azure-core
 azure-search-documents
 azure-identity
-openai
+python-dotenv
 requests
 fastapi
 uvicorn
+openai
