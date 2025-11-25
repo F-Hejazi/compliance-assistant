@@ -1,16 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from services.search_service import search_utterances
-from services.openai_service import classify_intent_with_openai
-from services.runbook_evaluator import evaluate_rules
+from backend.services.search_service import search_utterances
+from backend.services.openai_service import classify_intent_with_openai
+from backend.services.runbook_evaluator import evaluate_rules
 
-from agents.classifier import classify_intent
-from agents.retriever import retrieve_documents
-from agents.validator import validate_document
-from agents.escalation import check_escalation
-from agents.explainer import explain_steps
-from agents.safety import run_safety_check
+from backend.agents.classifier import classify_intent
+from backend.agents.retriever import retrieve_documents
+from backend.agents.validator import validate_document
+from backend.agents.escalation import check_escalation
+from backend.agents.explainer import explain_steps
+from backend.agents.safety import run_safety_check
 
 app = FastAPI(title="Compliance Assistant API")
 
