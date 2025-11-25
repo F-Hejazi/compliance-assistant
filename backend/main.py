@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.services.search_service import search_utterances
 from backend.services.openai_service import classify_intent_with_openai
 from backend.services.runbook_evaluator import evaluate_rules
+from backend.services.foundry_agent import call_foundry_agent
 
 from backend.agents.classifier import classify_intent
 from backend.agents.retriever import retrieve_documents
@@ -29,9 +30,28 @@ def root():
 # This is where the orchestrator will eventually go
 @app.post("/process")
 def process_request(payload: dict):
+    
+    # Switch between demo mode and full pipeline
+    DEMO_MODE = True   # set to False once the full pipeline is ready
+
     # Extract user text
     text = payload.get("text", "")
 
+    if DEMO_MODE:
+        # ---------------------------------------------------------
+        # Simplified Foundry-agent demo path (used for the hackathon)
+        # ---------------------------------------------------------
+        agent_response = call_foundry_agent(text)
+        return {
+            "mode": "demo_foundry_agent",
+            "input": text,
+            "final_output": agent_response,
+        }
+
+    # =============================================================
+    # Full pipeline
+    # =============================================================
+    
     # ---------------------
     # Step 1: Classification
     # ---------------------
