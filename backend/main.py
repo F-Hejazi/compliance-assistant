@@ -1,3 +1,4 @@
+import uuid
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -23,11 +24,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# In-memory chat history
+chat_sessions = {}
+
 @app.get("/")
 def root():
     return {"status": "backend is running"}
 
-# This is where the orchestrator will eventually go
+# The orchestrator 
 @app.post("/process")
 def process_request(payload: dict):
     
@@ -36,16 +40,32 @@ def process_request(payload: dict):
 
     # Extract user text
     text = payload.get("text", "")
+    session_id = payload.get("session_id")
+
+    # if no session, create a new one
+    if not session_id:
+        session_id = str(uuid.uuid4())
+        chat_sessions[session_id] = []
+
+    # Append user message
+    chat_sessions[session_id].append({"role": "user", "content": text})
 
     if DEMO_MODE:
         # ---------------------------------------------------------
-        # Simplified Foundry-agent demo path (used for the hackathon)
+        # Foundry-agent demo path (used for the hackathon)
         # ---------------------------------------------------------
-        agent_response = call_foundry_agent(text)
+        # Pass the **entire conversation so far** to Foundry
+        agent_response = call_foundry_agent(chat_sessions[session_id])
+        
+        # Append agent response
+        chat_sessions[session_id].append({"role": "assistant", "content": agent_response})
+
         return {
             "mode": "demo_foundry_agent",
+            "session_id": session_id,
             "input": text,
             "final_output": agent_response,
+            "history": chat_sessions[session_id],
         }
 
     # =============================================================
