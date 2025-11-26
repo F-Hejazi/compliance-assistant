@@ -1,5 +1,8 @@
 import os
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 AGENT_ENDPOINT = os.getenv("FOUNDRY_AGENT_ENDPOINT")
 AGENT_API_KEY = os.getenv("FOUNDRY_AGENT_API_KEY")

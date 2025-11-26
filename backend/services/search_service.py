@@ -1,6 +1,9 @@
 import os
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 endpoint = os.getenv("SEARCH_ENDPOINT")
 index_name = os.getenv("SEARCH_INDEX")
