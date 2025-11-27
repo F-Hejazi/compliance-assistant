@@ -6,3 +6,8 @@ requests
 fastapi
 uvicorn
 openai
+pillow
+PyPDF2
+pytesseract
+python-docx
+python-multipart

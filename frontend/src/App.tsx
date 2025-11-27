@@ -5,58 +5,100 @@ type Message = {
   content: string;
 };
 
-type BackendResponse = {
-  mode: string;
-  session_id: string;
-  input: string;
-  final_output: string;
-  history: Message[];
-};
-
 export default function App() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [dragActive, setDragActive] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Handle file input selection
+  function onFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) {
+      setSelectedFiles([...selectedFiles, ...Array.from(e.target.files)]);
+    }
+  }
+
+  // Drag-and-drop handlers
+  function onDragOver(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setDragActive(true);
+  }
+
+  function onDragLeave(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setDragActive(false);
+  }
+
+  function onDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setDragActive(false);
+    if (e.dataTransfer.files) {
+      setSelectedFiles([...selectedFiles, ...Array.from(e.dataTransfer.files)]);
+    }
+  }
+
   async function sendMessage() {
-    if (!input.trim()) return;
+    if (!input.trim() && (!selectedFiles || selectedFiles.length === 0)) return;
+
     setError(null);
+
+    // Prepare a snapshot of current files
+    const filesArray = selectedFiles ? Array.from(selectedFiles) : [];
+
+    // Show the user message immediately in the chat
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: input, files: filesArray },
+    ]);
+
+    // Clear input and file selector immediately
+    setInput("");
+    setSelectedFiles([]);
+
     setLoading(true);
 
     try {
-      const payload = sessionId
-        ? { text: input, session_id: sessionId }
-        : { text: input };
+      const form = new FormData();
+      form.append("text", input || "");
+      if (sessionId) form.append("session_id", sessionId);
+
+      filesArray.forEach((file) => form.append("files", file));
 
       const res = await fetch("http://localhost:8000/process", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: form,
       });
 
       if (!res.ok) {
-        setError("The backend returned an error");
-        setLoading(false);
-        return;
+        const txt = await res.text();
+        throw new Error(txt || "Upload failed");
       }
 
-      const data: BackendResponse = await res.json();
+      const data = await res.json();
+
+      // Update session id
       setSessionId(data.session_id);
-      setMessages(data.history);
-      setInput("");
-    } catch {
-      setError("Network error");
+
+      // Append assistant response
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.final_output },
+      ]);
+    } catch (err) {
+      setError("Network error or file upload failed.");
     } finally {
       setLoading(false);
     }
   }
+
 
   function handleKeyPress(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -65,9 +107,15 @@ export default function App() {
     }
   }
 
+  function removeFile(index: number) {
+    const updated = [...selectedFiles];
+    updated.splice(index, 1);
+    setSelectedFiles(updated);
+  }
+
   return (
     <div className="flex flex-col h-screen font-inter text-gray-800 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #f8f9f5 0%, #f5f5f0 50%, #f0f2ed 100%)' }}>
-      {/* Exact background from sage variation */}
+      {/* Sage background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="blob blob1"></div>
         <div className="blob blob2"></div>
@@ -76,7 +124,7 @@ export default function App() {
       {/* Top bar */}
       <header className="relative backdrop-blur-xl bg-white/70 border-b border-stone-200/60 shadow-sm">
         <div className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             {/* Original book with light rays logo */}
             <div className="relative w-20 h-19">
               <svg viewBox="0 0 64 64" className="w-full h-full drop-shadow-md">
@@ -104,7 +152,7 @@ export default function App() {
           {/* Right side - helpful info icons */}
           <div className="flex items-center space-x-3">
             {sessionId && (
-              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/60 border border-stone-200/50">
+              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/60 border border-stone-400/50">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                 <span className="text-xs text-stone-700 font-medium">Active Session</span>
               </div>
@@ -197,8 +245,8 @@ export default function App() {
           {messages.map((m, idx) => (
             <div
               key={idx}
-              className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-slide-up`}
-              style={{ animationDelay: `${idx * 0.1}s` }}
+              className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+              style={{ animationDelay: `${idx * 0.05}s` }}
             >
               <div
                 className={`px-5 py-3.5 rounded-2xl max-w-2xl shadow-sm ${m.role === "user"
@@ -207,6 +255,17 @@ export default function App() {
                   }`}
               >
                 <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{m.content}</p>
+
+                {/* Inline files for user messages */}
+                {m.files && m.files.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {m.files.map((f: File, i: number) => (
+                      <div key={i} className="bg-stone-500 px-3 py-1 rounded-full flex items-center space-x-2 italic">
+                        <span className="text-sm">{f.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -237,10 +296,42 @@ export default function App() {
         </div>
       </div>
 
-      {/* Floating bottom input */}
-      <div className="relative p-4 sm:p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex space-x-3 bg-white border border-stone-200/60 rounded-2xl p-3 shadow-lg">
+      {/* File preview */}
+      {selectedFiles.length > 0 && (
+        <div className="max-w-4xl mx-auto p-2 flex flex-wrap gap-2">
+          {selectedFiles.map((f, idx) => (
+            <div
+              key={idx}
+              className="bg-stone-200 px-3 py-1 rounded-full flex items-center space-x-2"
+            >
+              <span className="text-sm">{f.name}</span>
+              <button
+                className="text-red-600 font-bold"
+                onClick={() => removeFile(idx)}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Floating bottom input with drag-and-drop */}
+      <div
+        className={`relative p-4 sm:p-6 border-t border-stone-200`}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+      >
+        <div className="max-w-5xl mx-auto flex flex-col space-y-2">
+          {dragActive && (
+            <div className="absolute inset-0 bg-stone-100/50 flex items-center justify-center rounded-2xl pointer-events-none">
+              <span className="text-stone-500 text-lg font-semibold">
+                Drop files here
+              </span>
+            </div>
+          )}
+          <div className="flex space-x-3 bg-white border border-stone-200/60 rounded-2xl p-3 shadow-lg relative">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -249,17 +340,48 @@ export default function App() {
               placeholder="Ask about compliance, regulations, or policies..."
               className="flex-1 bg-transparent text-stone-800 placeholder-stone-400 p-3 rounded-xl focus:outline-none resize-none"
             />
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                onChange={onFilesChange}
+                multiple
+                className="hidden"
+              />
+              <div className="px-4 py-7 bg-white border rounded-xl text-sm transition-all duration-200 transform hover:scale-105 hover:bg-stone-100 hover:shadow-md disabled:opacity-50 disabled:hover:scale-100">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <path d="M21.44 11.025l-9.19 9.19a6 6 0 01-8.485-8.485l9.19-9.19a4 4 0 015.657 5.657l-9.19 9.19a2 2 0 01-2.828-2.828l9.19-9.19" />
+                </svg>
+              </div>
+            </label>
             <button
               onClick={sendMessage}
-              disabled={loading || !input.trim()}
-              className="text-white font-semibold px-6 rounded-xl transition-all duration-200 transform hover:scale-105 hover:bg-stone-800 hover:shadow-md disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center min-w-[60px]" style={{ background: "#4d5e47" }}
+              disabled={loading || !input && selectedFiles.length === 0}
+              className="text-white font-semibold px-6 rounded-xl transition-all duration-200 transform hover:scale-105 hover:bg-stone-800 hover:shadow-md disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center min-w-[60px]"
+              style={{ background: "#4d5e47" }}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                  />
+                </svg>
+              )}
             </button>
           </div>
         </div>
+        {error && (
+          <div className="text-red-600 text-sm mt-1 max-w-4xl mx-auto">{error}</div>
+        )}
       </div>
     </div>
   );
