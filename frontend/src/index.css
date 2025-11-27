@@ -1,33 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap');
 @import "tailwindcss";
 
-body {
-  @apply bg-gray-50 text-gray-900 font-sans;
-  min-height: 100vh;
-  margin: 0;
+.font-title {
+  font-family: 'Libre Baskerville';
 }
 
-h1, h2, h3, h4, h5, h6 {
-  @apply font-semibold;
+.font-inter {
+  font-family: 'Inter';
 }
 
-button {
-  @apply transition-colors duration-200 ease-in-out;
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: float 8s infinite ease-in-out;
 }
 
-@keyframes slide-in-left {
-  0% { transform: translateX(-10%); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
+.blob1 {
+  width: 300px;
+  height: 300px;
+  background: #8b9d83;
+  opacity: 0.15;
+  top: -100px;
+  left: -50px;
 }
 
-@keyframes slide-in-right {
-  0% { transform: translateX(10%); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
+.blob2 {
+  width: 280px;
+  height: 280px;
+  background: #a8998a;
+  opacity: 0.12;
+  bottom: -80px;
+  right: -60px;
+  animation-delay: 3s;
 }
 
-.animate-slide-in-left {
-  animation: slide-in-left 0.2s ease-out;
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(20px, -20px);
+  }
 }
 
-.animate-slide-in-right {
-  animation: slide-in-right 0.2s ease-out;
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
 }
