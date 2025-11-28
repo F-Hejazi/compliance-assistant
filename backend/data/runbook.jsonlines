@@ -1,3 +1,5 @@
-{"id": "rule1", "rule": "ApprovalRule", "condition": "intent == DocumentValidation && confidence >= 0.8 && checklist_pass == true", "action": "auto_approve"}
-{"id": "rule2", "rule": "EscalationRule", "condition": "intent == VendorCheck && (confidence < 0.7 || missing_certification == true)", "action": "escalate_to_compliance_officer"}
-{"id": "rule3", "rule": "RejectionRule", "condition": "intent == DocumentValidation && confidence >= 0.8 && checklist_pass == false", "action": "auto_reject_with_explanation"}
+{"rule_id": "R001", "name": "Send eligibility confirmation", "trigger": {"intent": "eligibility_question", "confidence_min": 0.8}, "action": "email_confirmation", "priority": "low"}
+{"rule_id": "R002", "name": "Create escalation ticket", "trigger": {"intent": "escalation_needed"}, "action": "create_support_ticket", "priority": "high"}
+{"rule_id": "R003", "name": "Log document verification", "trigger": {"intent": "document_verification"}, "action": "log_verification_request", "priority": "medium"}
+{"rule_id": "R004", "name": "Alert ISO team", "trigger": {"escalation": true, "priority": "high"}, "action": "notify_iso_team", "priority": "high"}
+{"rule_id": "R005", "name": "Track query analytics", "trigger": {}, "action": "log_analytics", "priority": "low"}

@@ -1,0 +1,41 @@
+{
+  "policies": [
+    {
+      "id": "POL-F1-001",
+      "title": "F-1 Visa Eligibility Requirements",
+      "category": "eligibility",
+      "source": "8 CFR § 214.2(f)",
+      "content": "To qualify for F-1 visa status, the applicant must: (1) Be enrolled in an academic educational program, a language-training program, or a vocational program; (2) Be enrolled as a full-time student at the institution; (3) Be proficient in English or be enrolled in courses leading to English proficiency; (4) Have sufficient funds available to support themselves; (5) Have a residence abroad which they have no intention of abandoning.",
+      "effective_date": "2024-01-01",
+      "tags": ["f1", "eligibility", "requirements"]
+    },
+    {
+      "id": "POL-F1-002",
+      "title": "Post-Graduation F-1 Application Timeline",
+      "category": "deadlines",
+      "source": "USCIS Policy Manual",
+      "content": "Students who have graduated may apply for F-1 visa within 12 months of their graduation date. Applications submitted beyond this window require additional documentation and may face processing delays.",
+      "effective_date": "2024-01-01",
+      "tags": ["f1", "graduation", "timeline"]
+    },
+    {
+      "id": "POL-F1-003",
+      "title": "I-20 Name Discrepancy Policy",
+      "category": "documentation",
+      "source": "SEVP Guidance",
+      "content": "All names on Form I-20 must match the student's passport exactly, including spelling, order, and punctuation. Any discrepancies must be corrected through the Designated School Official (DSO) before travel. Students should not attempt to travel with mismatched documents.",
+      "effective_date": "2024-01-01",
+      "tags": ["i20", "documentation", "passport"]
+    },
+    {
+      "id": "POL-F1-004",
+      "title": "Health Insurance Requirements",
+      "category": "requirements",
+      "source": "University Policy",
+      "content": "All F-1 students must maintain health insurance with minimum coverage of: $100,000 medical benefits per accident/illness, $50,000 emergency medical evacuation, $25,000 repatriation of remains, and maximum deductible of $500 per accident/illness. Proof of insurance must be submitted within 30 days of arrival.",
+      "effective_date": "2024-08-01",
+      "tags": ["health insurance", "requirements"]
+    }
+  ]
+}
+

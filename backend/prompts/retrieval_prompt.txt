@@ -1,1 +1,0 @@
-Retrieve documents for this intent. Placeholder.

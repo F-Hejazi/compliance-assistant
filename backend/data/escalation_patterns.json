@@ -1,0 +1,39 @@
+{
+  "escalation_patterns": [
+    {
+      "pattern_id": "ESC-001",
+      "name": "Document Name Mismatch",
+      "keywords": ["name", "spelling", "different", "mismatch", "passport", "i-20"],
+      "risk_level": "high",
+      "reason": "Document discrepancies can result in visa denial or entry refusal"
+    },
+    {
+      "pattern_id": "ESC-002",
+      "name": "Missing Signatures",
+      "keywords": ["signature", "missing", "unsigned", "not signed"],
+      "risk_level": "high",
+      "reason": "Missing signatures can invalidate official documents"
+    },
+    {
+      "pattern_id": "ESC-003",
+      "name": "Conflicting Information",
+      "keywords": ["conflicting", "contradiction", "different information"],
+      "risk_level": "medium",
+      "reason": "Conflicting information requires manual review to resolve"
+    },
+    {
+      "pattern_id": "ESC-004",
+      "name": "Deadline Violation",
+      "keywords": ["deadline passed", "too late", "expired", "overdue"],
+      "risk_level": "high",
+      "reason": "Missed deadlines may result in application rejection"
+    },
+    {
+      "pattern_id": "ESC-005",
+      "name": "Complex Legal Question",
+      "keywords": ["appeal", "denial", "waiver", "exception", "special circumstances"],
+      "risk_level": "high",
+      "reason": "Legal complexity requires expert review"
+    }
+  ]
+}
