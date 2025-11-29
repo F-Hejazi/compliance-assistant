@@ -1,6 +1,7 @@
 import io
 import uuid
 import json
+import logging
 import pytesseract
 from typing import List
 from PyPDF2 import PdfReader
@@ -13,6 +14,7 @@ from backend.services.search_service import search_utterances
 from backend.services.openai_service import classify_intent_with_openai
 from backend.services.runbook_evaluator import evaluate_rules
 from backend.services.foundry_agent import call_foundry_agent
+from backend.services.session_store import SessionStore
 
 from backend.agents.classifier import classify_intent
 from backend.agents.retriever import retrieve_documents
@@ -29,6 +31,10 @@ MAX_EXCERPT_CHARS = 3000            # excerpt chars to send to agent per file
 # In-memory chat history
 chat_sessions = {}
 
+# from fastapi.security import OAuth2PasswordBearer
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+# For demo purposes, authentication disabled for ease of testing
 
 app = FastAPI(title="Compliance Assistant API")
 app.include_router(uploads_router, prefix="/api")
@@ -269,7 +275,7 @@ async def process_request(
     # ---------------------
     explanation = explain_steps(
         intent=intent,
-        docs=docs,
+        documents=docs,
         validation=validation,
         escalation=escalation
     )
@@ -282,6 +288,9 @@ async def process_request(
     # ---------------------
     safe_output = run_safety_check(explanation)
 
+    logger.info(f"Processing request: {text}")
+    logger.info(f"Session: {session_id}")
+
     return {
         "intent": intent,
         "retrieved_docs": docs,
@@ -291,3 +300,10 @@ async def process_request(
         "explanation": explanation,
         "final_output": safe_output
     }
+
+# Configure logging (would connect to Application Insights in production)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
